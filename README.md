@@ -173,8 +173,3 @@ El servidor estará escuchando en `http://localhost:3000`.
 * `500 Internal Server Error`: Excepción no controlada gestionada por el middleware de errores.
 
 ---
-
-## 📜 Licencia
-
-Distribuido bajo la Licencia MIT. Consulta `LICENSE` para más información.
-
