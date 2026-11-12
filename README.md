@@ -4,6 +4,16 @@ API backend desarrollada con **Node.js**, **Express**, **Sequelize ORM** y **Pos
 
 ---
 
+## 🌐 Despliegue en Producción
+
+El servicio backend se encuentra alojado y operativo en **Render Web Services**:
+
+* **Base URL:** [https://api-restful-express.onrender.com](https://api-restful-express.onrender.com)
+* **Entorno:** Render Web Service (Node.js LTS, PostgreSQL Neon con SSL habilitado)
+* **CD Pipeline:** Compilación y despliegue continuo automatizado en cada push a la rama `main`.
+
+---
+
 ## 🛠️ Tecnologías y Herramientas
 
 * **Entorno:** Node.js (ES Modules `"type": "module"`)
@@ -58,8 +68,8 @@ alquiler-autos/
 
 **1. Clonar el repositorio:**
 ```bash
-git clone [https://github.com/tu-usuario/alquiler-autos.git](https://github.com/tu-usuario/alquiler-autos.git)
-cd alquiler-autos
+git clone https://github.com/DevAvirama/api_restful_express.git
+cd api_restful_express
 ```
 
 **2. Instalar dependencias:**
