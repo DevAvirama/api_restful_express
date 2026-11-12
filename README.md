@@ -1,185 +1,61 @@
-# 🚗 API RESTful de Alquiler de Autos
+# API RESTful de Alquiler de Vehículos — Node.js, Express & PostgreSQL
 
-API backend desarrollada con **Node.js**, **Express**, **Sequelize ORM** y **PostgreSQL (Neon)** para la gestión integral de reservas de vehículos, autenticación segura con JWT y control reactivo de inventario.
+API RESTful transaccional desarrollada en **Node.js** y **Express** bajo patrón arquitectónico **MVC**, diseñada para gestionar inventario vehicular, reservas y control de disponibilidad con persistencia relacional en **PostgreSQL serverless (Neon)** y despliegue continuo en **Render**.
 
----
-
-## 🌐 Despliegue en Producción
-
-El servicio backend se encuentra alojado y operativo en **Render Web Services**:
-
-* **Base URL:** [https://api-restful-express.onrender.com](https://api-restful-express.onrender.com)
-* **Entorno:** Render Web Service (Node.js LTS, PostgreSQL Neon con SSL habilitado)
-* **CD Pipeline:** Compilación y despliegue continuo automatizado en cada push a la rama `main`.
+- **Servicio en producción:** [api-restful-express.onrender.com](https://api-restful-express.onrender.com)
+- **Portafolio:** [santiagoavirama.dev](https://santiagoavirama.dev)
 
 ---
 
-## 🛠️ Tecnologías y Herramientas
+## Arquitectura MVC y Flujo de Datos
 
-* **Entorno:** Node.js (ES Modules `"type": "module"`)
-* **Framework Web:** Express.js
-* **Base de Datos:** PostgreSQL (Alojada en la nube con Neon Tech)
-* **ORM:** Sequelize & Sequelize CLI
-* **Seguridad y Cifrado:** JSON Web Tokens (`jsonwebtoken`), Bcrypt (`bcrypt`)
-* **Control de Acceso:** CORS (`cors`)
-* **Entorno y Variables:** Dotenv (`dotenv`)
-
----
-
-## 📂 Estructura del Proyecto
-
-```text
-alquiler-autos/
-├── config/
-│   └── config.cjs              # Configuración de conexión y dialecto PostgreSQL para Sequelize
-├── migrations/
-│   ├── 20260101000001-create-autos.cjs
-│   ├── 20260101000002-create-clientes.cjs
-│   └── 20260101000003-create-alquiler.cjs
-├── src/
-│   ├── controllers/
-│   │   ├── alquilerController.js # Lógica de reservas, validación de stock y finalización
-│   │   ├── autoController.js     # Creación y catálogo de vehículos
-│   │   └── clienteController.js  # Registro, login y perfil de clientes
-│   ├── middlewares/
-│   │   └── auth.middleware.js    # Verificación y validación de tokens JWT (Bearer)
-│   ├── models/
-│   │   ├── alquiler.js           # Modelo Alquiler con asociaciones BelongsTo
-│   │   ├── auto.js               # Modelo Auto con asociación HasMany
-│   │   ├── cliente.js            # Modelo Cliente con hooks de hash Bcrypt y HasMany
-│   │   └── index.js              # Conexión Sequelize, instanciación y registro de modelos
-│   ├── routes/
-│   │   ├── alquilerRoutes.js     # Enrutador de reservas protegidas
-│   │   ├── autoRoutes.js         # Enrutador de flota de vehículos
-│   │   └── clienteRoutes.js      # Enrutador de autenticación y clientes
-│   ├── app.js                    # Configuración de Express, middlewares globales y rutas
-│   └── server.js                 # Inicialización y verificación de base de datos
-├── .env.example                  # Plantilla de variables de entorno requeridas
-├── package.json
-└── README.md
+```mermaid
+flowchart LR
+    CLIENT[Cliente HTTP / Frontend] --> ROUTES[Express Router]
+    ROUTES --> AUTH[Middleware JWT Stateless]
+    AUTH --> CTRL[Controladores MVC]
+    CTRL --> ORM[Sequelize ORM + Migraciones]
+    ORM --> NEON[(PostgreSQL Serverless — Neon.tech)]
 ```
-## ⚙️ Requisitos Previos
 
-* **Node.js:** v18+ (compatible con v26+)
-* **NPM:** v9+
-* **Neon Tech:** Cuenta en [Neon.tech](https://neon.tech/) con base de datos PostgreSQL creada
+### Características Técnicas
 
-## 🚀 Instalación y Despliegue Local
+- **Autenticación Sin Estado (_Stateless_):** Registro e inicio de sesión protegidos mediante hashing criptográfico con `Bcrypt` y emisión de tokens `JWT`.
+- **Integridad Relacional y Migraciones:** Esquemas y relaciones entre usuarios, flota vehicular y reservas versionados con `Sequelize CLI`.
+- **Control de Disponibilidad:** Validación de rangos de fechas en reservas para prevenir solapamientos sobre un mismo vehículo.
 
-**1. Clonar el repositorio:**
+---
+
+## Endpoints Principales
+
+| Método           | Ruta                 | Autenticación | Descripción                                            |
+| :--------------- | :------------------- | :------------ | :----------------------------------------------------- |
+| `POST`           | `/api/auth/register` | Pública       | Registro de usuario con contraseña encriptada          |
+| `POST`           | `/api/auth/login`    | Pública       | Autenticación y emisión de `JWT`                       |
+| `GET`            | `/api/vehiculos`     | Pública / JWT | Listado y filtrado de flota disponible                 |
+| `POST`           | `/api/vehiculos`     | JWT           | Creación de nuevo registro vehicular                   |
+| `PUT` / `DELETE` | `/api/vehiculos/:id` | JWT           | Actualización o baja de vehículo                       |
+| `POST`           | `/api/reservas`      | JWT           | Creación de reserva con verificación de disponibilidad |
+
+---
+
+## Variables de Entorno
+
+| Variable       | Descripción                               | Ejemplo                                                     |
+| :------------- | :---------------------------------------- | :---------------------------------------------------------- |
+| `PORT`         | Puerto HTTP del servidor Express          | `3000`                                                      |
+| `DATABASE_URL` | Cadena de conexión PostgreSQL (Neon.tech) | `postgres://user:pass@ep-host.neon.tech/db?sslmode=require` |
+| `JWT_SECRET`   | Secreto de firma para JSON Web Tokens     | `super_secret_key`                                          |
+
+---
+
+## Ejecución Local
+
 ```bash
-git clone https://github.com/DevAvirama/api_restful_express.git
+git clone [https://github.com/DevAvirama/api_restful_express.git](https://github.com/DevAvirama/api_restful_express.git)
 cd api_restful_express
-```
-
-**2. Instalar dependencias:**
-```bash
+cp .env.example .env
 npm install
-```
-
-**3. Configurar variables de entorno:**
-Crea un archivo `.env` en la raíz del proyecto tomando como base `.env.example`:
-```env
-PORT=3000
-DATABASE_URL=postgresql://usuario:password@ep-ejemplo.us-east-2.aws.neon.tech/neondb?sslmode=require
-JWT_SECRET=tu_clave_secreta_super_segura
-```
-
-**4. Ejecutar las migraciones en la base de datos:**
-```bash
-npm run migrate
-```
-
-**5. Iniciar el servidor en modo desarrollo:**
-```bash
+npx sequelize-cli db:migrate
 npm run dev
 ```
-
-El servidor estará escuchando en `http://localhost:3000`.
-
----
-
-## 📋 Diccionario de Endpoints
-
-### 🔐 Autenticación y Clientes (`/api/clientes`)
-
-| Método | Endpoint | Acceso | Descripción |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/clientes/registro` | Público | Registra un nuevo cliente con contraseña cifrada |
-| `POST` | `/api/clientes/login` | Público | Autentica al cliente y devuelve un token JWT (2h) |
-| `GET` | `/api/clientes/perfil` | 🔒 Protegido | Devuelve la información del cliente autenticado |
-
-**Body Registro (`POST /api/clientes/registro`):**
-```json
-{
-  "nombre": "Ana Lopez",
-  "correo": "ana@correo.com",
-  "numLic": "LIC-4821",
-  "password": "clave123"
-}
-```
-
-**Body Login (`POST /api/clientes/login`):**
-```json
-{
-  "correo": "ana@correo.com",
-  "password": "clave123"
-}
-```
-
----
-
-### 🚗 Flota de Vehículos (`/api/autos`)
-
-| Método | Endpoint | Acceso | Descripción |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/autos` | Público | Agrega un nuevo vehículo al inventario |
-| `GET` | `/api/autos` | Público | Retorna el catálogo de todos los autos |
-
-**Body Crear Auto (`POST /api/autos`):**
-```json
-{
-  "marca": "Toyota",
-  "modelo": "Corolla",
-  "imagen": "[https://example.com/corolla.jpg](https://example.com/corolla.jpg)",
-  "valorAlquiler": 120000,
-  "anio": "2024",
-  "disponibilidad": 1
-}
-```
-
----
-
-### 📑 Gestión de Alquileres (`/api/alquileres`)
-
-> **Nota:** Todos los endpoints de alquiler requieren enviar el token JWT en la cabecera `Authorization: Bearer <token>`.
-
-| Método | Endpoint | Acceso | Descripción |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/alquileres` | 🔒 Protegido | Reserva un auto disponible y cambia su estado a `0` |
-| `GET` | `/api/alquileres/mis-alquileres` | 🔒 Protegido | Lista el historial de reservas del usuario activo |
-| `PUT` | `/api/alquileres/:id/finalizar` | 🔒 Protegido | Cierra el alquiler y libera el auto a estado `1` |
-
-**Body Crear Alquiler (`POST /api/alquileres`):**
-```json
-{
-  "autoId": 1,
-  "fechaInicio": "2026-09-10",
-  "fechaFin": "2026-09-15"
-}
-```
-
----
-
-## 🔒 Manejo de Códigos de Respuesta HTTP
-
-* `200 OK`: Consulta o actualización exitosa.
-* `201 Created`: Recurso creado exitosamente (Cliente, Auto, Alquiler).
-* `400 Bad Request`: Parámetros no válidos o vehículo no disponible para reserva.
-* `401 Unauthorized`: Token no proporcionado o credenciales inválidas.
-* `403 Forbidden`: Token JWT expirado o firma corrupta.
-* `404 Not Found`: Recurso no encontrado (Auto, Cliente o Reserva).
-* `409 Conflict`: Correo electrónico ya registrado en el sistema.
-* `500 Internal Server Error`: Excepción no controlada gestionada por el middleware de errores.
-
----
